@@ -1,0 +1,203 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <conio.h>
+#include <windows.h>
+
+using namespace std;
+
+const int FILAS = 5;
+const int COLUMNAS = 4;
+const int MAX_INTENTOS = 10;
+
+void titulo() {
+
+    srand(time(0));
+    HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+    //Cambia el color del texto
+    SetConsoleTextAttribute(out, 10);
+
+    char a = 219;
+
+    cout << " =====================================================================" << endl;
+    cout << " |  " << a << a << "      " << a << a << " " << a << a << a << a << a << " " << a << a << "      " << a << a << " " << a << a << a << a << a << " " << a << a << a << a << a << a << " " << a << a << a << a << a << " " << a << a << "      " << a << a << " " << a << a << a << a << a << "  |" << endl;
+    cout << " |  " << a << a << a << a << "  " << a << a << a << a << " " << a << a << "    " << a << a << a << a << "  " << a << a << a << a << " " << a << a << " " << a << a << " " << a << a << "  " << a << a << " " << a << a << " " << a << a << " " << a << a << a << a << "  " << a << a << a << a << " " << a << a << " " << a << a << "  |" << endl;
+    cout << " |  " << a << a << " " << a << a << a << a << " " << a << a << " " << a << a << a << a << a << " " << a << a << " " << a << a << a << a << " " << a << a << " " << a << a << " " << a << a << " " << a << a << a << a << a << a << " " << a << a << a << a << a << " " << a << a << " " << a << a << a << a << " " << a << a << " " << a << a << a << a << a << "  |" << endl;
+    cout << " |  " << a << a << "  " << a << a << "  " << a << a << " " << a << a << "    " << a << a << "  " << a << a << "  " << a << a << " " << a << a << " " << a << a << " " << a << a << " " << a << a << "  " << a << a << " " << a << a << " " << a << a << "  " << a << a << "  " << a << a << " " << a << a << " " << a << a << "  |" << endl;
+    cout << " |  " << a << a << "      " << a << a << " " << a << a << a << a << a << " " << a << a << "      " << a << a << " " << a << a << a << a << a << " " << a << a << "  " << a << a << " " << a << a << " " << a << a << " " << a << a << "      " << a << a << " " << a << a << " " << a << a << "  |" << endl;
+    cout << " =====================================================================" << endl;
+}
+
+void gotoxy(int x, int y) {
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+void limpiarPantalla() {
+    system("cls");
+}
+
+void mostrarPortada() {
+    limpiarPantalla();
+    titulo();
+    cout << endl;
+    cout << "       Hecho por Ernesto Gracia Nava y Jesus Javier Rojo Martinez" << endl;
+    cout << endl << endl;
+    cout << "                   Presiona ENTER para comenzar...";
+    cin.ignore();
+}
+
+void mostrarInstrucciones() {
+    limpiarPantalla();
+    titulo();
+
+    cout << " =====================================================================" << endl;
+    cout << " |                            Instrucciones                          |" << endl;
+    cout << " =====================================================================" << endl;
+    cout << endl;
+    cout << " =====================================================================" << endl;
+    cout << " | >Selecciona una carta utilizando coordenadas, en Y son del 0 al 4 |" << endl;
+    cout << " |  y en X son del 0 al 3 , luego presiona ENTER para voltearla.     |" << endl;
+    cout << " |                                                                   |" << endl;
+    cout << " | >Despues selecciona otra carta para intentar encontrar su par.    |" << endl;
+    cout << " |                                                                   |" << endl;
+    cout << " | >Tienes 10 intentos, asi que buena suerte.                        |" << endl;
+    cout << " =====================================================================" << endl;
+    cout << endl << endl;
+    cout << "               Presiona cualquier tecla para continuar...";
+    getch();
+}
+
+void generarPares(char matriz[FILAS][COLUMNAS]) {
+    char letras[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+    int numPares = (FILAS * COLUMNAS) / 2;
+    int contadorPares = 0;
+
+    for (int i = 0; i < FILAS; i++) {
+        for (int j = 0; j < COLUMNAS; j++) {
+            matriz[i][j] = letras[contadorPares];
+            contadorPares++;
+
+            if (contadorPares == numPares) {
+                contadorPares = 0;
+            }
+        }
+    }
+}
+
+void mezclarPares(char matriz[FILAS][COLUMNAS]) {
+    srand(time(0));
+
+    for (int i = 0; i < FILAS; i++) {
+        for (int j = 0; j < COLUMNAS; j++) {
+            int filaAleatoria = rand() % FILAS;
+            int columnaAleatoria = rand() % COLUMNAS;
+
+            char temp = matriz[i][j];
+            matriz[i][j] = matriz[filaAleatoria][columnaAleatoria];
+            matriz[filaAleatoria][columnaAleatoria] = temp;
+        }
+    }
+}
+
+void imprimirMatriz(char matriz[FILAS][COLUMNAS], bool cartasDescubiertas[FILAS][COLUMNAS]) {
+    limpiarPantalla();
+
+    for (int i = 0; i < FILAS; i++) {
+        for (int j = 0; j < COLUMNAS; j++) {
+            if (cartasDescubiertas[i][j]) {
+                cout << matriz[i][j] << " ";
+            } else {
+                cout << "? ";
+            }
+        }
+        cout << endl;
+    }
+}
+
+void descubrirCarta(int fila, int columna, char matriz[FILAS][COLUMNAS], bool cartasDescubiertas[FILAS][COLUMNAS]) {
+    cartasDescubiertas[fila][columna] = true;
+    gotoxy(columna * 2, fila);
+    cout << matriz[fila][columna];
+}
+
+bool validarPar(int fila1, int columna1, int fila2, int columna2, char matriz[FILAS][COLUMNAS]) {
+    return matriz[fila1][columna1] == matriz[fila2][columna2];
+}
+
+int main() {
+    setlocale(LC_ALL, "");
+
+    char matriz[FILAS][COLUMNAS];
+    bool cartasDescubiertas[FILAS][COLUMNAS] = {false};
+    int numParesPendientes = FILAS * COLUMNAS / 2;
+    int numIntentos = 0;
+    int fila1, columna1, fila2, columna2;
+    int respuesta =0;
+
+    do{
+    mostrarPortada();
+    mostrarInstrucciones();
+    generarPares(matriz);
+    mezclarPares(matriz);
+
+
+    while (numParesPendientes > 0 && numIntentos < MAX_INTENTOS) {
+        imprimirMatriz(matriz, cartasDescubiertas);
+        cout << endl;
+        cout << "Pares pendientes: " << numParesPendientes << endl;
+        cout << "Intentos restantes: " << MAX_INTENTOS - numIntentos << endl;
+
+        cout << endl;
+
+        cout << "Selecciona la primera carta (fila,columna): ";
+        cin >> fila1 >> columna1;
+
+        cout << "Selecciona la segunda carta (fila,columna): ";
+        cin >> fila2 >> columna2;
+
+        if (fila1 >= 0 && fila1 < FILAS && columna1 >= 0 && columna1 < COLUMNAS) {
+            if (!cartasDescubiertas[fila1][columna1]) {
+                descubrirCarta(fila1, columna1, matriz, cartasDescubiertas);
+
+                if (fila2 >= 0 && fila2 < FILAS && columna2 >= 0 && columna2 < COLUMNAS) {
+                    if (!cartasDescubiertas[fila2][columna2]) {
+                        descubrirCarta(fila2, columna2, matriz, cartasDescubiertas);
+
+                        if (validarPar(fila1, columna1, fila2, columna2, matriz)) {
+                            numParesPendientes--;
+                        } else {
+                            Sleep(1000);  // Pausa de 1 segundo
+                            cartasDescubiertas[fila1][columna1] = false;
+                            cartasDescubiertas[fila2][columna2] = false;
+                        }
+
+                        numIntentos++;
+                    }
+                }
+            }
+        }
+    }
+
+    limpiarPantalla();
+    if (numParesPendientes == 0) {
+        cout << "Felicidades, has ganado :)" << endl;
+    } else {
+        cout << "Lo siento, perdiste :(" << endl;
+    }
+
+    cout << "¿Quieres volver a jugar? (1.si / 0.no): ";
+    cin >> respuesta;
+
+    if (respuesta == 0){
+        cout << endl;
+        cout << ("Gracias por jugar y hasta la proxima!") << endl;
+    }
+
+    }while(respuesta == 1);
+
+
+    return 0;
+}
